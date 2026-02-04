@@ -1,66 +1,69 @@
 blueprint:
-  name: Ikea BILRESA scroll wheel (sensors for scroll, events for press) - WiZ fixed
+  name: Ikea_bilresa_scroll_wheel
   description: |
-    Ikea BILRESA blueprint met 3 kanalen.
-
-    - Scroll links/rechts gebruikt sensor.*current_switch_position_* (pulse 0/1).
-      Alleen rising edge (0->1) triggert, dus per klik exact 1 stap en direct.
-    - Druk op scrollwiel blijft event.* gebruiken zodat single/double/long/hold blijft werken.
-
-    WiZ-fix:
-    - Scroll dim/color_temp/hs werkt zonder helper-scripts via light.turn_on.
-    - Mixed mode kiest op basis van color_mode == 'color_temp'.
-    - Dimmen werkt ook als lamp uit staat (scroll right zet aan op min/step).
-    - Dim down clamped op minimum.
-
+      Blueprint for Ikea Bilresa Matter (button and scroll wheel for 3 different channels)
+      Version: 2026-01-25
+      Info: https://community.home-assistant.io/t/ikea-bilresa-scroll-wheel-blueprint-matter/965365
   domain: automation
-
+  
+  # input selectors
   input:
     remote:
       name: Remote
-      description: Ikea BILRESA remote control device
+      description: "Ikea Bilresa scroll wheel remote control"
       selector:
-        device: {}
+        device:
+          filter:
+            manufacturer: IKEA of Sweden
+            model: BILRESA scroll wheel
 
+    # input selectors: channel 1
     channel1_section:
-      name: Kanaal 1
+      name: Channel 1
       collapsed: true
       input:
         click_action_ch1:
-          name: "Kanaal 1: click actie"
+          name: "Channel 1: <click> action"
           default: []
           selector:
             action: {}
         double_click_action_ch1:
-          name: "Kanaal 1: double click actie"
+          name: "Channel 1: <double-click> action"
+          default: []
+          selector:
+            action: {}
+        triple_click_action_ch1:
+          name: "Channel 1: <triple-click> action"
           default: []
           selector:
             action: {}
         long_click_action_ch1:
-          name: "Kanaal 1: long press actie"
+          name: "Channel 1: <long-click> action"
+          description: ""
           default: []
           selector:
             action: {}
         on_hold_action_ch1:
-          name: "Kanaal 1: on-hold actie"
-          description: Herhaalt totdat losgelaten, zie on_hold_delay
+          name: "Channel 1: <on-hold> action"
+          description: "repeat action until button is released, see also on_hold_delay"
           default: []
           selector:
             action: {}
         scroll_wheel_target_ch1:
-          name: "Kanaal 1: scroll target(s)"
-          description: Light of media_player die je met het wiel wilt bedienen
-          default: []
+          name: "Channel 1: Scroll wheel target entity"
+          description: |
+            Light or media player to be controlled by scroll wheel for channel 1
+            - empty for <user defined> scroll wheel mode
           selector:
             entity:
               multiple: true
               filter:
                 domain:
-                  - light
-                  - media_player
+                - light
+                - media_player
+                
+          default: []
         scroll_wheel_mode_ch1:
-          name: "Kanaal 1: scroll mode"
-          default: "lights: dim"
           selector:
             select:
               options:
@@ -69,45 +72,81 @@ blueprint:
                 - "lights: color temp only"
                 - "lights: color hue only"
                 - "media: volume control"
+                - "user defined"
+          default: "lights: dim"
+          name: "Channel 1: Scroll wheel mode"
+          description: "Select attribute of target entity controlled by scroll wheel"
+        scroll_wheel_mode_ext_ch1:
+          selector:
+            select:
+              options:
+                - "relaxed"
+                - "instant"
+          default: "relaxed"
+          name: "Channel 1: Scroll wheel evaluation mode"
+          description: |
+            <relaxed>: one action call after scrolling
+            <instant>: many action calls while scrolling
+            
+            Beware:
+            for <instant> mode the 9 hidden sensor entities of Bilresa device have to be enabled
+        scroll_wheel_user_action_ch1:
+          name: "Channel 1: User defined scroll wheel action"
+          description: |
+            For scroll wheel mode <user defined> only
+            Exposed variables:
+            - <scroll_clicks>: for <instant> mode always 1, for <relaxed> mode number between 1 to 8
+            - <scroll_direction>: 'left' or 'right'
+          default: []
+          selector:
+            action: {}
 
+    # input selectors: channel 1
     channel2_section:
-      name: Kanaal 2
+      name: Channel 2
       collapsed: true
       input:
         click_action_ch2:
-          name: "Kanaal 2: click actie"
+          name: "Channel 2: <click> action"
           default: []
           selector:
             action: {}
         double_click_action_ch2:
-          name: "Kanaal 2: double click actie"
+          name: "Channel 2: <double-click> action"
+          default: []
+          selector:
+            action: {}
+        triple_click_action_ch2:
+          name: "Channel 2: <triple-click> action"
           default: []
           selector:
             action: {}
         long_click_action_ch2:
-          name: "Kanaal 2: long press actie"
+          name: "Channel 2: <long-click> action"
+          description: ""
           default: []
           selector:
             action: {}
         on_hold_action_ch2:
-          name: "Kanaal 2: on-hold actie"
-          description: Herhaalt totdat losgelaten, zie on_hold_delay
+          name: "Channel 2: <on-hold> action"
+          description: "repeat action until button is released, see also on_hold_delay"
           default: []
           selector:
             action: {}
         scroll_wheel_target_ch2:
-          name: "Kanaal 2: scroll target(s)"
-          default: []
+          name: "Channel 2: Scroll wheel target entity"
+          description: |
+            Light or media player to be controlled by scroll wheel for channel 2
+            - empty for <user defined> scroll wheel mode
           selector:
             entity:
               multiple: true
               filter:
                 domain:
-                  - light
-                  - media_player
+                - light
+                - media_player
+          default: []
         scroll_wheel_mode_ch2:
-          name: "Kanaal 2: scroll mode"
-          default: "lights: dim"
           selector:
             select:
               options:
@@ -116,45 +155,82 @@ blueprint:
                 - "lights: color temp only"
                 - "lights: color hue only"
                 - "media: volume control"
+                - "user defined"
+          default: "lights: dim"
+          name: "Channel 2: Scroll wheel mode"
+          description: "Select attribute of target entity controlled by scroll wheel"
+        scroll_wheel_mode_ext_ch2:
+          selector:
+            select:
+              options:
+                - "relaxed"
+                - "instant"
+          default: "relaxed"
+          name: "Channel 2: Scroll wheel evaluation mode"
+          description: |
+            - <relaxed>: one action call after scrolling
+            - <instant>: many action calls while scrolling
+            
+            Beware:
+            - for <instant> mode the 9 hidden sensor entities of Bilresa device have to be enabled
+        scroll_wheel_user_action_ch2:
+          name: "Channel 2: User defined scroll wheel action"
+          description: |
+            For scroll wheel mode <user defined> only
+            Exposed variables:
+            - <scroll_clicks>: for <instant> mode always 1, for <relaxed> mode number between 1 to 8
+            - <scroll_direction>: 'left' or 'right'
+          default: []
+          selector:
+            action: {}
 
+
+    # input selectors: channel 3
     channel3_section:
-      name: Kanaal 3
+      name: Channel 3
       collapsed: true
       input:
         click_action_ch3:
-          name: "Kanaal 3: click actie"
+          name: "Channel 3: <click> action"
           default: []
           selector:
             action: {}
         double_click_action_ch3:
-          name: "Kanaal 3: double click actie"
+          name: "Channel 3: <double-click> action"
+          default: []
+          selector:
+            action: {}
+        triple_click_action_ch3:
+          name: "Channel 3: <triple-click> action"
           default: []
           selector:
             action: {}
         long_click_action_ch3:
-          name: "Kanaal 3: long press actie"
+          name: "Channel 3: <long-click> action"
+          description: ""
           default: []
           selector:
             action: {}
         on_hold_action_ch3:
-          name: "Kanaal 3: on-hold actie"
-          description: Herhaalt totdat losgelaten, zie on_hold_delay
+          name: "Channel 3: <on-hold> action"
+          description: "repeat action until button is released, see also on_hold_delay"
           default: []
           selector:
             action: {}
         scroll_wheel_target_ch3:
-          name: "Kanaal 3: scroll target(s)"
-          default: []
+          name: "Channel 3: Scroll wheel target entity"
+          description: |
+            Light or media player to be controlled by scroll wheel for channel 3
+            - empty for <user defined> scroll wheel mode
           selector:
             entity:
               multiple: true
               filter:
                 domain:
-                  - light
-                  - media_player
+                - light
+                - media_player
+          default: []
         scroll_wheel_mode_ch3:
-          name: "Kanaal 3: scroll mode"
-          default: "lights: dim"
           selector:
             select:
               options:
@@ -163,153 +239,453 @@ blueprint:
                 - "lights: color temp only"
                 - "lights: color hue only"
                 - "media: volume control"
+                - "user defined"
+          default: "lights: dim"
+          name: "Channel 3: Scroll wheel mode"
+          description: "Select attribute of target entity controlled by scroll wheel"
+        scroll_wheel_mode_ext_ch3:
+          selector:
+            select:
+              options:
+                - "relaxed"
+                - "instant"
+          default: "relaxed"
+          name: "Channel 3: Scroll wheel evaluation mode"
+          description: |
+            - <relaxed>: one action call after scrolling
+            - <instant>: many action calls while scrolling
+            
+            Beware:
+            - for <instant> mode the 9 hidden sensor entities of Bilresa device have to be enabled
+        scroll_wheel_user_action_ch3:
+          name: "Channel 3: User defined scroll wheel action"
+          description: |
+            For scroll wheel mode <user defined> only
+            Exposed variables:
+            - <scroll_clicks>: for <instant> mode always 1, for <relaxed> mode number between 1 to 8
+            - <scroll_direction>: 'left' or 'right'
+          default: []
+          selector:
+            action: {}
+          
 
-    global_section:
-      name: Globale instellingen
+    # input selectors: settings for all channels
+    global_setting:
+      name: Global settings
       collapsed: true
       input:
+        # light
         dim_step_pct:
-          name: Dimmer stapgrootte (%)
+          name: Dimmer step percentage
+          description: "change in brightness in %"
           default: 5
           selector:
             number:
               mode: box
         dim_min_pct:
-          name: Minimum brightness (%)
+          name: Minimum brightness
+          description: "minimum brightness in %"
           default: 5
           selector:
             number:
               mode: box
+    
         min_color_temp:
-          name: Minimum kleurtemperatuur (K)
+          name: Minimum color temperature
+          description: "minimum color temperature in K (for color_mode = color_temp)"
           default: 2200
           selector:
             number:
               mode: box
         max_color_temp:
-          name: Maximum kleurtemperatuur (K)
+          name: Maximum color temperature
+          description: "maximum color temperature in K (for color_mode = color_temp)"
           default: 4000
           selector:
             number:
               mode: box
         color_temp_step:
-          name: Kleurtemperatuur stap (K)
+          name: Color temperature step
+          description: "change in color temperature in K (for color_mode = color_temp)"
           default: 100
           selector:
             number:
               mode: box
         color_hue_step:
-          name: Hue stap (graden, 0..360)
+          name: Color hue step
+          description: "change in color hue in degree (0..360) (for color_mode = color_hue)"
           default: 4
           selector:
             number:
               mode: box
         color_saturation:
-          name: Saturation (%)
+          name: Color saturation
+          description: "color saturation in % (for color_mode = color_hue)"
           default: 100
           selector:
             number:
               mode: box
+                
+    
+        # media_player              
+        volume_step_pct:
+          name: Media player volume step percentage
+          description: "change in volume in %"
+          default: 3.5
+          selector:
+            number:
+              mode: box
+        volume_use_up_down_for_instant:
+          name: "Media player: use actions volume_up/volume_down for <instant> mode"
+          description: |
+            <instant> mode uses standard actions volume_up/volume_down instead of <volume step percentage> by default 
+            
+            if this is to coarse disable this option and adjust the <volume step percentage> value to the lowest value which still changes the volume while scrolling in both directions
+          default: true
+          selector:
+            boolean:
+        volume_max_pct:
+          name: Media player max volume percentage
+          description: "max volume in %"
+          default: 70
+          selector:
+            number:
+              mode: box
+        # misc
         on_hold_delay:
-          name: On-hold delay (sec)
+          name: On hold delay
+          description: delay between separate action calls while on hold button
           default: 0.1
           selector:
             number:
               mode: box
               step: 0.1
-        volume_step_pct:
-          name: Volume stap (%)
-          default: 2
+        max_queued_automation_calls:
+          name: Max queued automation calls
+          description: |
+            Increase if you want to queue more automation calls for special cases
+          default: 10
           selector:
             number:
               mode: box
-        volume_max_pct:
-          name: Max volume (%)
-          default: 50
-          selector:
-            number:
-              mode: box
+              step: 1
+          
 
-alias: Ikea_BILRESA_scroll_wheel
-mode: queued
-max: 50
-max_exceeded: silent
-
+# automation logic
+alias: Ikea_bilresa_scroll_wheel
 trigger:
-  # Drukken op het wiel (event entities, 3/6/9)
-  - trigger: event
-    event_type: state_changed
+  - event_type: state_changed
     event_data:
-      entity_id: "{{ var_press_event_ch1 }}"
-    id: press_ch1
-
-  - trigger: event
-    event_type: state_changed
+      entity_id: "{{ var_button_ch1 }}"
+    trigger: event
+    id: button_ch1
+  - event_type: state_changed
     event_data:
-      entity_id: "{{ var_press_event_ch2 }}"
-    id: press_ch2
-
-  - trigger: event
-    event_type: state_changed
-    event_data:
-      entity_id: "{{ var_press_event_ch3 }}"
-    id: press_ch3
-
-  # Scroll rechts (sensors 1/4/7)
-  - trigger: event
-    event_type: state_changed
-    event_data:
-      entity_id: "{{ var_scroll_right_sensor_ch1 }}"
-    id: scroll_right_ch1
-
-  - trigger: event
-    event_type: state_changed
-    event_data:
-      entity_id: "{{ var_scroll_right_sensor_ch2 }}"
-    id: scroll_right_ch2
-
-  - trigger: event
-    event_type: state_changed
-    event_data:
-      entity_id: "{{ var_scroll_right_sensor_ch3 }}"
-    id: scroll_right_ch3
-
-  # Scroll links (sensors 2/5/8)
-  - trigger: event
-    event_type: state_changed
-    event_data:
-      entity_id: "{{ var_scroll_left_sensor_ch1 }}"
+      entity_id: "{{ var_scroll_left_ch1 }}"
+    trigger: event
     id: scroll_left_ch1
-
-  - trigger: event
-    event_type: state_changed
+  - event_type: state_changed
     event_data:
-      entity_id: "{{ var_scroll_left_sensor_ch2 }}"
+      entity_id: "{{ var_scroll_right_ch1 }}"
+    trigger: event
+    id: scroll_right_ch1
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_left_ext_ch1 }}"
+    trigger: event
+    id: scroll_left_ext_ch1
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_right_ext_ch1 }}"
+    trigger: event
+    id: scroll_right_ext_ch1
+
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_button_ch2 }}"
+    trigger: event
+    id: button_ch2
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_left_ch2 }}"
+    trigger: event
     id: scroll_left_ch2
-
-  - trigger: event
-    event_type: state_changed
+  - event_type: state_changed
     event_data:
-      entity_id: "{{ var_scroll_left_sensor_ch3 }}"
+      entity_id: "{{ var_scroll_right_ch2 }}"
+    trigger: event
+    id: scroll_right_ch2
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_left_ext_ch2 }}"
+    trigger: event
+    id: scroll_left_ext_ch2
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_right_ext_ch2 }}"
+    trigger: event
+    id: scroll_right_ext_ch2
+
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_button_ch3 }}"
+    trigger: event
+    id: button_ch3
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_left_ch3 }}"
+    trigger: event
     id: scroll_left_ch3
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_right_ch3 }}"
+    trigger: event
+    id: scroll_right_ch3
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_left_ext_ch3 }}"
+    trigger: event
+    id: scroll_left_ext_ch3
+  - event_type: state_changed
+    event_data:
+      entity_id: "{{ var_scroll_right_ext_ch3 }}"
+    trigger: event
+    id: scroll_right_ext_ch3
+
 
 condition:
   - condition: template
     value_template: >-
-      {% set o = trigger.event.data.old_state %}
-      {% set n = trigger.event.data.new_state %}
-      {{ o is not none and n is not none
-         and o.state not in ['unavailable','unknown']
-         and n.state not in ['unavailable','unknown'] }}
+      {{ trigger.event.data.old_state.state != 'unavailable' 
+         and trigger.event.data.new_state.state != 'unavailable'
+      }}
+action:
+  - variables:
+      channel: >-
+        {% if trigger.id in ['button_ch1', 'scroll_left_ch1', 'scroll_right_ch1', 'scroll_left_ext_ch1', 'scroll_right_ext_ch1'] %}
+          ch1
+        {% elif trigger.id in ['button_ch2', 'scroll_left_ch2', 'scroll_right_ch2', 'scroll_left_ext_ch2', 'scroll_right_ext_ch2'] %}
+          ch2
+        {% elif trigger.id in ['button_ch3', 'scroll_left_ch3', 'scroll_right_ch3', 'scroll_left_ext_ch3', 'scroll_right_ext_ch3'] %}
+          ch3
+        {% endif %}
+  - choose:
+      # button click
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.id == ('button_' ~ channel) and trigger.event.data.new_state.attributes.event_type ==
+              'multi_press_1' }}
+        sequence:
+          - if: "{{ channel == 'ch1'}}"
+            then:
+              !input click_action_ch1
+          - if: "{{ channel == 'ch2'}}"
+            then:
+              !input click_action_ch2
+          - if: "{{ channel == 'ch3'}}"
+            then:
+              !input click_action_ch3
+      # button double-click
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.id == ('button_' ~ channel) and trigger.event.data.new_state.attributes.event_type ==
+              'multi_press_2' }}
+        sequence:
+          - if: "{{ channel == 'ch1'}}"
+            then:
+              !input double_click_action_ch1
+          - if: "{{ channel == 'ch2'}}"
+            then:
+              !input double_click_action_ch2
+          - if: "{{ channel == 'ch3'}}"
+            then:
+              !input double_click_action_ch3
+      # button triple-click
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.id == ('button_' ~ channel) and trigger.event.data.new_state.attributes.event_type ==
+              'multi_press_3' }}
+        sequence:
+          - if: "{{ channel == 'ch1'}}"
+            then:
+              !input triple_click_action_ch1
+          - if: "{{ channel == 'ch2'}}"
+            then:
+              !input triple_click_action_ch2
+          - if: "{{ channel == 'ch3'}}"
+            then:
+              !input triple_click_action_ch3
+      # button long-press
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trigger.id == ('button_' ~ channel) and trigger.event.data.new_state.attributes.event_type ==
+              'long_press' }}
+      # button on-hold action
+        sequence:
+          - if: "{{ channel == 'ch1'}}"
+            then:
+              sequence:
+                - sequence: !input long_click_action_ch1
+                - repeat:
+                    while: "{{ repeat.index < 100 and state_attr(var_button_ch1, 'event_type') == 'long_press' }}"
+                    sequence:
+                    - sequence: !input on_hold_action_ch1
+                    - delay: "{{ var_on_hold_delay }}"
+          - if: "{{ channel == 'ch2'}}"
+            then:
+              sequence:
+                - sequence: !input long_click_action_ch2
+                - repeat:
+                    while: "{{ repeat.index < 100 and state_attr(var_button_ch2, 'event_type') == 'long_press' }}"
+                    sequence:
+                    - sequence: !input on_hold_action_ch2
+                    - delay: "{{ var_on_hold_delay }}"
+          - if: "{{ channel == 'ch3'}}"
+            then:
+              sequence:
+                - sequence: !input long_click_action_ch3
+                - repeat:
+                    while: "{{ repeat.index < 100 and state_attr(var_button_ch3, 'event_type') == 'long_press' }}"
+                    sequence:
+                    - sequence: !input on_hold_action_ch3
+                    - delay: "{{ var_on_hold_delay }}"
+      # scroll wheel actions
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ ( (vars['scroll_wheel_mode_ext_' ~ channel] == 'relaxed') and (trigger.id == ('scroll_left_' ~ channel) or trigger.id == ('scroll_right_' ~ channel))) or
+                 (  (vars['scroll_wheel_mode_ext_' ~ channel] == 'instant') and (trigger.id == ('scroll_left_ext_' ~ channel) or trigger.id == ('scroll_right_ext_' ~ channel)) and trigger.event.data.new_state.state == '1' )  
+              }}
+        sequence:
+          - variables:
+              scroll_clicks: >
+                {% if (vars['scroll_wheel_mode_ext_' ~ channel] == 'relaxed') %}
+                  {{ trigger.event.data.new_state.attributes.totalNumberOfPressesCounted }}
+                {% else %}
+                  1
+                {% endif %}
+              scroll_direction: >
+                {% if (trigger.id == 'scroll_left_' ~ channel) or (trigger.id == 'scroll_left_ext_' ~ channel)%}
+                  left
+                {% else %}
+                  right
+                {% endif %}
+          - if:
+              # scroll wheel mode: <user defined>
+              - condition: template
+                value_template: "{{ vars['scroll_wheel_mode_' ~ channel] == 'user defined' }}"
+            then:
+              sequence:
+                - if: "{{ channel == 'ch1'}}"
+                  then:
+                    !input scroll_wheel_user_action_ch1
+                - if: "{{ channel == 'ch2'}}"
+                  then:
+                    !input scroll_wheel_user_action_ch2
+                - if: "{{ channel == 'ch3'}}"
+                  then:
+                    !input scroll_wheel_user_action_ch3
+            else:
+            - repeat:
+                for_each: "{{ vars['targets_entities_' ~ channel] }}"
+                sequence:
+                  - choose:
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ vars['scroll_wheel_mode_' ~ channel] == 'lights: dim'}}"
+                      sequence:
+                        # scroll wheel mode: <lights: dim>
+                        - if:
+                            - condition: template
+                              value_template: >-
+                                {{ is_state(repeat.item, 'on')
+                                }}
+                          then:
+                            - action: light.turn_on
+                              target:
+                                entity_id: "{{ repeat.item }}"
+                              data:
+                                brightness_step_pct: >-
+                                        {{ iif(scroll_direction == 'right', scroll_clicks * var_dim_step_pct,
+                                        -1*([scroll_clicks * var_dim_step_pct, state_attr(repeat.item, 'brightness')*100/254
+                                         - var_min_pct]|min)) 
+                                        }}
+                                transition: 0.1
+                    # scroll wheel mode: <lights: color temp>
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ vars['scroll_wheel_mode_' ~ channel] == 'lights: color temp only' or (vars['scroll_wheel_mode_' ~ channel] == 'lights: color temp and color hue' and state_attr(repeat.item, 'color_temp_kelvin') is not none ) }}"
+                      sequence:
+                        # scroll wheel mode: lights: color temp
+                        - action: script.light_color_temp_helper
+                          data:
+                            mode: >-
+                              {{ iif(scroll_direction == 'left', 'down', 'up')
+                              }}
+                            min_color_temp: "{{ var_min_color_temp }}"
+                            max_color_temp: "{{ var_max_color_temp }}"
+                            color_temp_step: "{{ var_color_temp_step * scroll_clicks }}"
+                            target_light: "{{ repeat.item }}"
+                      # scroll wheel mode: <lights: color hue>
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ vars['scroll_wheel_mode_' ~ channel] == 'lights: color hue only' or (vars['scroll_wheel_mode_' ~ channel] == 'lights: color temp and color hue' and state_attr(repeat.item, 'color_temp_kelvin') is none ) }}"
+                      sequence:
+                        - action: script.light_color_hs_helper
+                          data:
+                            target_light: "{{ repeat.item }}"
+                            color_hue_step: "{{ var_color_hue_step * scroll_clicks }}"
+                            color_saturation: "{{ var_color_saturation }}"
+                            mode: >-
+                              {{ iif(scroll_direction == 'left', 'down', 'up')
+                              }}
+                      # scroll wheel mode: <media: volume>
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ vars['scroll_wheel_mode_' ~ channel] == 'media: volume control' and (is_state(repeat.item, 'playing') or is_state(repeat.item, 'on') )}}"
+                      sequence:
+                        - if:
+                            - condition: template
+                              value_template: "{{ vars['scroll_wheel_mode_ext_' ~ channel] == 'relaxed' or not var_volume_use_up_down_for_instant}}"
+                          then:
+                            - action: media_player.volume_set
+                              target:
+                                entity_id: "{{ repeat.item }}"
+                              data:
+                                volume_level: >- 
+                                            {{ [[state_attr(repeat.item, 'volume_level')*100 + 
+                                                iif(scroll_direction == 'right', 1, -1)* scroll_clicks * var_volume_step_pct, var_volume_max_pct] | min, 0] | max / 100
+                                            }}
+                          else:
+                            - if:
+                                - condition: template
+                                  value_template: "{{ scroll_direction == 'left' }}"
+                              then:
+                                - action: media_player.volume_down
+                                  target:
+                                    entity_id: "{{ repeat.item }}"
+                              else:
+                                - if:
+                                    - condition: template
+                                      value_template: "{{ state_attr(repeat.item, 'volume_level')*100 < var_volume_max_pct }}"
+                                  then:
+                                    - action: media_player.volume_up
+                                      target:
+                                        entity_id: "{{ repeat.item }}"
 
+
+mode: queued
+max: !input max_queued_automation_calls
+max_exceeded: silent
 variables:
-  targets_entities_ch1: !input scroll_wheel_target_ch1
-  targets_entities_ch2: !input scroll_wheel_target_ch2
-  targets_entities_ch3: !input scroll_wheel_target_ch3
-
-  scroll_wheel_mode_ch1: !input scroll_wheel_mode_ch1
-  scroll_wheel_mode_ch2: !input scroll_wheel_mode_ch2
-  scroll_wheel_mode_ch3: !input scroll_wheel_mode_ch3
+  vars: {'targets_entities_ch1': !input scroll_wheel_target_ch1, 'targets_entities_ch2': !input scroll_wheel_target_ch2, 'targets_entities_ch3': !input scroll_wheel_target_ch3, 
+  'scroll_wheel_mode_ch1': !input scroll_wheel_mode_ch1, 'scroll_wheel_mode_ch2': !input scroll_wheel_mode_ch2, 'scroll_wheel_mode_ch3': !input scroll_wheel_mode_ch3,
+  'scroll_wheel_mode_ext_ch1': !input scroll_wheel_mode_ext_ch1, 'scroll_wheel_mode_ext_ch2': !input scroll_wheel_mode_ext_ch2, 'scroll_wheel_mode_ext_ch3': !input scroll_wheel_mode_ext_ch3
+  }
 
   var_min_pct: !input dim_min_pct
   var_dim_step_pct: !input dim_step_pct
@@ -321,275 +697,114 @@ variables:
   var_on_hold_delay: !input on_hold_delay
   var_volume_step_pct: !input volume_step_pct
   var_volume_max_pct: !input volume_max_pct
-
-action:
-  - variables:
-      channel: >-
-        {% if trigger.id in ['press_ch1','scroll_left_ch1','scroll_right_ch1'] %}ch1
-        {% elif trigger.id in ['press_ch2','scroll_left_ch2','scroll_right_ch2'] %}ch2
-        {% elif trigger.id in ['press_ch3','scroll_left_ch3','scroll_right_ch3'] %}ch3
-        {% else %}unknown{% endif %}
-
-      is_press: "{{ trigger.id is match('^press_') }}"
-      is_scroll: "{{ trigger.id is match('^scroll_') }}"
-
-      scroll_dir: >-
-        {% if trigger.id in ['scroll_left_ch1','scroll_left_ch2','scroll_left_ch3'] %}left
-        {% elif trigger.id in ['scroll_right_ch1','scroll_right_ch2','scroll_right_ch3'] %}right
-        {% else %}none{% endif %}
-
-      # Alleen reageren op opgaande flank (0->1 of off->on)
-      pulse_rising: >-
-        {% set o = trigger.event.data.old_state.state %}
-        {% set n = trigger.event.data.new_state.state %}
-        {{ (o in ['0','off'] and n in ['1','on']) }}
-
-      scroll_steps: "{{ 1 if (is_scroll and pulse_rising) else 0 }}"
-
-      press_event_type: >-
-        {% if is_press %}
-          {{ trigger.event.data.new_state.attributes.event_type | default('') }}
-        {% else %}
-          {{ '' }}
-        {% endif %}
-
-  - choose:
-      ##########################################################################
-      # BUTTONS (press)
-      ##########################################################################
-      # Press: single click
-      - conditions:
-          - condition: template
-            value_template: "{{ is_press and press_event_type == 'multi_press_1' }}"
-        sequence:
-          - choose:
-              - conditions: "{{ channel == 'ch1' }}"
-                sequence: !input click_action_ch1
-              - conditions: "{{ channel == 'ch2' }}"
-                sequence: !input click_action_ch2
-              - conditions: "{{ channel == 'ch3' }}"
-                sequence: !input click_action_ch3
-
-      # Press: double click
-      - conditions:
-          - condition: template
-            value_template: "{{ is_press and press_event_type == 'multi_press_2' }}"
-        sequence:
-          - choose:
-              - conditions: "{{ channel == 'ch1' }}"
-                sequence: !input double_click_action_ch1
-              - conditions: "{{ channel == 'ch2' }}"
-                sequence: !input double_click_action_ch2
-              - conditions: "{{ channel == 'ch3' }}"
-                sequence: !input double_click_action_ch3
-
-      # Press: long press + on-hold repeat
-      - conditions:
-          - condition: template
-            value_template: "{{ is_press and press_event_type == 'long_press' }}"
-        sequence:
-          - choose:
-              - conditions: "{{ channel == 'ch1' }}"
-                sequence:
-                  - sequence: !input long_click_action_ch1
-                  - repeat:
-                      while: >-
-                        {{ repeat.index < 500
-                           and state_attr(var_press_event_ch1, 'event_type') == 'long_press' }}
-                      sequence:
-                        - sequence: !input on_hold_action_ch1
-                        - delay: "{{ var_on_hold_delay }}"
-              - conditions: "{{ channel == 'ch2' }}"
-                sequence:
-                  - sequence: !input long_click_action_ch2
-                  - repeat:
-                      while: >-
-                        {{ repeat.index < 500
-                           and state_attr(var_press_event_ch2, 'event_type') == 'long_press' }}
-                      sequence:
-                        - sequence: !input on_hold_action_ch2
-                        - delay: "{{ var_on_hold_delay }}"
-              - conditions: "{{ channel == 'ch3' }}"
-                sequence:
-                  - sequence: !input long_click_action_ch3
-                  - repeat:
-                      while: >-
-                        {{ repeat.index < 500
-                           and state_attr(var_press_event_ch3, 'event_type') == 'long_press' }}
-                      sequence:
-                        - sequence: !input on_hold_action_ch3
-                        - delay: "{{ var_on_hold_delay }}"
-
-      ##########################################################################
-      # SCROLL (WiZ-proof)
-      ##########################################################################
-      - conditions:
-          - condition: template
-            value_template: "{{ is_scroll and scroll_steps > 0 and scroll_dir in ['left','right'] }}"
-        sequence:
-          - repeat:
-              for_each: >-
-                {{ (targets_entities_ch1 if channel == 'ch1'
-                    else (targets_entities_ch2 if channel == 'ch2'
-                    else targets_entities_ch3)) }}
-              sequence:
-                - variables:
-                    ent: "{{ repeat.item }}"
-                    ent_domain: "{{ repeat.item.split('.')[0] }}"
-                    mode: >-
-                      {{ (scroll_wheel_mode_ch1 if channel == 'ch1'
-                          else (scroll_wheel_mode_ch2 if channel == 'ch2'
-                          else scroll_wheel_mode_ch3)) }}
-                    step_pct: "{{ (var_dim_step_pct | float(0)) * (scroll_steps | float(1)) }}"
-                    cur_bri_pct: >-
-                      {% set b = state_attr(ent,'brightness') %}
-                      {{ ((b | float(0)) * 100 / 255) | float(0) }}
-                    cur_ct: >-
-                      {{ state_attr(ent,'color_temp_kelvin') | int( (var_min_color_temp + var_max_color_temp) / 2 ) }}
-                    cur_hue: >-
-                      {% set hs = state_attr(ent,'hs_color') %}
-                      {{ (hs[0] if hs is not none else 0) | float(0) }}
-                    is_on: "{{ is_state(ent, 'on') }}"
-                    color_mode: "{{ state_attr(ent, 'color_mode') | default('') }}"
-
-                - choose:
-                    # LIGHTS: DIM
-                    - conditions:
-                        - condition: template
-                          value_template: "{{ ent_domain == 'light' and mode == 'lights: dim' }}"
-                      sequence:
-                        - choose:
-                            - conditions:
-                                - condition: template
-                                  value_template: "{{ scroll_dir == 'right' }}"
-                              sequence:
-                                - action: light.turn_on
-                                  target:
-                                    entity_id: "{{ ent }}"
-                                  data:
-                                    brightness_pct: >-
-                                      {% if not is_on %}
-                                        {{ [var_min_pct, step_pct] | max }}
-                                      {% else %}
-                                        {{ [100, (cur_bri_pct + step_pct)] | min }}
-                                      {% endif %}
-                                    transition: 0.1
-
-                            - conditions:
-                                - condition: template
-                                  value_template: "{{ scroll_dir == 'left' and is_on }}"
-                              sequence:
-                                - action: light.turn_on
-                                  target:
-                                    entity_id: "{{ ent }}"
-                                  data:
-                                    brightness_pct: >-
-                                      {{ [var_min_pct, (cur_bri_pct - step_pct)] | max }}
-                                    transition: 0.1
-
-                    # LIGHTS: COLOR TEMP (of mixed-mode wanneer color_mode == color_temp)
-                    - conditions:
-                        - condition: template
-                          value_template: >-
-                            {{ ent_domain == 'light' and (
-                                 mode == 'lights: color temp only'
-                                 or (mode == 'lights: color temp and color hue' and color_mode == 'color_temp')
-                               ) }}
-                      sequence:
-                        - action: light.turn_on
-                          target:
-                            entity_id: "{{ ent }}"
-                          data:
-                            color_temp_kelvin: >-
-                              {% set delta = (var_color_temp_step | int(0)) * (scroll_steps | int(1)) %}
-                              {% set wanted = (cur_ct + (delta if scroll_dir == 'right' else -delta)) %}
-                              {{ [var_max_color_temp, [var_min_color_temp, wanted] | max] | min }}
-
-                    # LIGHTS: COLOR HUE (of mixed-mode wanneer NIET color_temp)
-                    - conditions:
-                        - condition: template
-                          value_template: >-
-                            {{ ent_domain == 'light' and (
-                                 mode == 'lights: color hue only'
-                                 or (mode == 'lights: color temp and color hue' and color_mode != 'color_temp')
-                               ) }}
-                      sequence:
-                        - action: light.turn_on
-                          target:
-                            entity_id: "{{ ent }}"
-                          data:
-                            hs_color: >-
-                              {% set delta = (var_color_hue_step | float(0)) * (scroll_steps | float(1)) %}
-                              {% set raw = (cur_hue + (delta if scroll_dir == 'right' else -delta)) %}
-                              {% set hue = (raw % 360) %}
-                              {{ [hue, (var_color_saturation | float(100))] }}
-
-                    # MEDIA: VOLUME
-                    - conditions:
-                        - condition: template
-                          value_template: "{{ ent_domain == 'media_player' and mode == 'media: volume control' }}"
-                      sequence:
-                        - action: media_player.volume_set
-                          target:
-                            entity_id: "{{ ent }}"
-                          data:
-                            volume_level: >-
-                              {% set cur = (state_attr(ent, 'volume_level') | float(0)) * 100 %}
-                              {% set delta = (var_volume_step_pct | float(0)) * (scroll_steps | float(1)) %}
-                              {% set wanted = cur + (delta if scroll_dir == 'right' else -delta) %}
-                              {% set capped = [var_volume_max_pct, wanted] | min %}
-                              {{ [[capped, 0] | max, 100] | min / 100 }}
+  var_volume_use_up_down_for_instant: !input volume_use_up_down_for_instant
 
 trigger_variables:
   var_remote: !input remote
-
-  # Event entities voor drukken (3,6,9)
-  var_press_event_ch1: >-
+  
+  # get all event names from device_id only
+  var_button_ch1: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^event\\..+_3$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_3.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-  var_press_event_ch2: >-
+  var_scroll_left_ch1: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^event\\..+_6$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_2.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-  var_press_event_ch3: >-
+  var_scroll_right_ch1: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^event\\..+_9$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_1.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-
-  # Sensor entities voor scrollen
-  var_scroll_right_sensor_ch1: >-
+  var_scroll_left_ext_ch1: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^sensor\\..+current_switch_position_1$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^sensor\..+[a-zA-Z]_2.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-  var_scroll_left_sensor_ch1: >-
+  var_scroll_right_ext_ch1: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^sensor\\..+current_switch_position_2$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^sensor\..+[a-zA-Z]_1.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-
-  var_scroll_right_sensor_ch2: >-
+  var_button_ch2: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^sensor\\..+current_switch_position_4$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_6.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-  var_scroll_left_sensor_ch2: >-
+  var_scroll_left_ch2: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^sensor\\..+current_switch_position_5$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_5.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-
-  var_scroll_right_sensor_ch3: >-
+  var_scroll_right_ch2: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^sensor\\..+current_switch_position_7$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_4.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
-  var_scroll_left_sensor_ch3: >-
+  var_scroll_left_ext_ch2: >-
     {% for item in device_entities(var_remote) %}
-      {% set m = item | regex_findall(find='^sensor\\..+current_switch_position_8$') %}
-      {% if m | length > 0 %}{{ m[0] }}{% endif %}
+    {% set match = item | regex_findall(find='^sensor\..+[a-zA-Z]_5.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
+    {% endfor %}
+  var_scroll_right_ext_ch2: >-
+    {% for item in device_entities(var_remote) %}
+    {% set match = item | regex_findall(find='^sensor\..+[a-zA-Z]_4.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
+    {% endfor %}
+  var_button_ch3: >-
+    {% for item in device_entities(var_remote) %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_9.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
+    {% endfor %}
+  var_scroll_left_ch3: >-
+    {% for item in device_entities(var_remote) %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_8.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
+    {% endfor %}
+  var_scroll_right_ch3: >-
+    {% for item in device_entities(var_remote) %}
+    {% set match = item | regex_findall(find='^event\..+[a-zA-Z]_7.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
+    {% endfor %}
+  var_scroll_left_ext_ch3: >-
+    {% for item in device_entities(var_remote) %}
+    {% set match = item | regex_findall(find='^sensor\..+[a-zA-Z]_8.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
+    {% endfor %}
+  var_scroll_right_ext_ch3: >-
+    {% for item in device_entities(var_remote) %}
+    {% set match = item | regex_findall(find='^sensor\..+[a-zA-Z]_7.*$') %}
+    {% if (match | length) > 0 %}
+      {{ match[0] }}
+    {% endif %}
     {% endfor %}
